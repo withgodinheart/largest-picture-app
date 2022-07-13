@@ -1,17 +1,15 @@
 package com.bobocode.picture.config;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.RestTemplate;
-import java.util.concurrent.TimeUnit;
 
-@Slf4j
-@EnableScheduling
+import java.time.Duration;
+
 @EnableCaching
 @Configuration
 public class PictureAppConfiguration {
@@ -21,9 +19,15 @@ public class PictureAppConfiguration {
         return new RestTemplate();
     }
 
-    @Scheduled(timeUnit = TimeUnit.DAYS, fixedRate = 1)
-    @CacheEvict(cacheNames = "maxSizePicture", allEntries = true)
-    public void clearCache() {
-        log.info("Clear maxSizePicture cache every day!");
+    @Bean
+    public Caffeine caffeineConfig() {
+        return Caffeine.newBuilder().expireAfterWrite(Duration.ofDays(1L));
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        CaffeineCacheManager caffeineCacheManager = new CaffeineCacheManager();
+        caffeineCacheManager.setCaffeine(caffeineConfig());
+        return caffeineCacheManager;
     }
 }
