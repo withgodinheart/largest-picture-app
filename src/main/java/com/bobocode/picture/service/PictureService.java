@@ -17,7 +17,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PictureService {
 
-    @NonNull
     private final RestTemplate restTemplate;
     private static final String BASE_URL = "https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos";
     private static final String API_KEY_PARAM = "DEMO_KEY";
